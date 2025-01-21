@@ -1,23 +1,41 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Calculadora de Suma</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/css/home.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Automatizaciones Ferragro y Solartech</title>
 </head>
 <body>
-    <h1>Calculadora de Suma</h1>
-    <form method="POST">
-        <label for="a">Número A:</label>
-        <input type="number" name="a" required><br><br>
+    <div class="background-image">
+        <div class="container">
+            <!-- Bloque Solartech -->
+            <div class="block">
+                <div class="logo">
+                    <img src="../static/css/imagenes/logo solartech.png" alt="Logo Solartech">
+                </div>
+                <h2>SOLARTECH:</h2>
+                <ul>
+                    <li><a href="/calculadora_solar">Cotizador de proyectos solares</a></li>
+                    <li><a href="/calculadora_equipos">Cotizador de equipos solares</a></li>
+                    <li><a href="/diligenciamiento_contratos">Diligenciamiento de contratos</a></li>
+                </ul>
+            </div>
 
-        <label for="b">Número B:</label>
-        <input type="number" name="b" required><br><br>
-
-        <button type="submit">Sumar</button>
-    </form>
-
-    {% if resultado is not none %}
-        <h2>Resultado: {{ resultado }}</h2>
-    {% endif %}
+            <!-- Bloque Ferragro -->
+            <div class="block">
+                <div class="logo">
+                    <img src="../static/css/imagenes/logo ferragro.png" alt="Logo Ferragro">
+                </div>
+                <h2>FERRAGRO:</h2>
+                <ul>
+                    <li><a href="/instalaciones_terceros">Servicios de instalaciones terceros</a></li>
+                    <li><a href="/sagrilaft">Diligenciamiento de SAGRILAFT</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
+
