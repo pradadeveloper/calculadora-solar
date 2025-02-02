@@ -1,12 +1,8 @@
 from flask import Flask, render_template, request, send_file
-from fpdf import FPDF
-import os
+from modules.pdf_generator import generar_pdf 
+from modules.calculos_solar import CalculoNumeroPaneles  # Importar la clase
 
 app = Flask(__name__)
-
-# Configuración de directorios
-PDF_FOLDER = 'generated_pdfs'
-os.makedirs(PDF_FOLDER, exist_ok=True)
 
 # ---------------------RUTAS------------------------------
 
@@ -22,39 +18,33 @@ def calculadora_solar():
 
 # Ruta para generar PDF del "Cotizador de proyectos solares"
 @app.route('/generar_pdf', methods=['POST'])
-def generar_pdf():
+def generar_pdf_route():
     if request.method == 'POST':
         # Recibir datos del formulario
         cliente = request.form['cliente']
         proyecto = request.form['proyecto']
+        correo = request.form['correo']
+        correo_asesor = request.form['correo_asesor']
+        celular = request.form['celular']
         ubicacion = request.form['ubicacion']
-        potencia = request.form['potencia']
-        costo = request.form['costo']
+        potencia = float(request.form['potencia'])
+        costo = float(request.form['costo'])
+        area = float(request.form['area'])
+        
+         # ✅ Calcular la energía generada y el número de paneles
+        calculo = CalculoNumeroPaneles(ubicacion, potencia)
+        energia_generada = calculo.energia_generada_por_panel()  
 
-        # Crear PDF
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font('Arial', size=12)
+        # Extraer los valores importantes
+        consumo_anual = energia_generada["Consumo Anual (kWh)"]
+        paneles_400 = energia_generada["Número de paneles de 400W"]
+        paneles_585 = energia_generada["Número de paneles de 585W"]
+        paneles_605 = energia_generada["Número de paneles de 605W"]
 
-        # Logo
-        pdf.image('./static/css/imagenes/logo solartech.png', x=10, y=8, w=30)
-
-        # Título
-        pdf.set_font('Arial', 'B', 16)
-        pdf.cell(200, 10, txt="Cotización de Proyecto Solar", ln=True, align='C')
-
-        # Información del cliente
-        pdf.set_font('Arial', size=12)
-        pdf.ln(10)
-        pdf.cell(200, 10, txt=f"Cliente: {cliente}", ln=True)
-        pdf.cell(200, 10, txt=f"Proyecto: {proyecto}", ln=True)
-        pdf.cell(200, 10, txt=f"Ubicación: {ubicacion}", ln=True)
-        pdf.cell(200, 10, txt=f"Potencia Instalada: {potencia} kWp", ln=True)
-        pdf.cell(200, 10, txt=f"Costo del Proyecto: ${costo}", ln=True)
-
-        # Guardar PDF
-        pdf_path = os.path.join(PDF_FOLDER, 'cotizacion.pdf')
-        pdf.output(pdf_path)
+        # Generar PDF utilizando el módulo y pasar los valores como argumentos
+        pdf_path = generar_pdf(cliente, proyecto, celular, correo_asesor, correo, 
+                       ubicacion, potencia, costo, area, 
+                       consumo_anual, paneles_400, paneles_585, paneles_605)
 
         return send_file(pdf_path, as_attachment=True)
 
@@ -78,9 +68,6 @@ def instalaciones_terceros():
 def sagrilaft():
     return render_template('sagrilaft.html')
 
+# Única instancia de ejecución del servidor
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-    
-
