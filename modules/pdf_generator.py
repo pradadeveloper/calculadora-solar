@@ -1,4 +1,4 @@
-from fpdf import FPDF
+from fpdf import FPDF # type: ignore
 import os
 
 # Carpeta donde se guardarán los PDFs generados
@@ -36,7 +36,7 @@ def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor ,co
     
     # ✅ **TABLA DE INFORMACIÓN DEL CLIENTE**
     pdf.set_font('Arial', 'B', 14)
-    pdf.cell(0, 10, txt="Datos proporcionados por el Cliente", ln=True, align='C')
+    pdf.cell(0, 10, txt="Datos proporcionados por el cliente:", ln=True, align='C')
     pdf.ln(5)
 
     # Ajustar ancho de columnas
@@ -86,26 +86,26 @@ def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor ,co
         "Energía generada por panel de 400W": "kWh",
         "Energía generada por panel de 585W": "kWh",
         "Energía generada por panel de 605W": "kWh",
-        "Número de paneles de 400W": "unidades",
-        "Número de paneles de 585W": "unidades",
-        "Número de paneles de 605W": "unidades",
-        "Número de inversores de 3500W": "(unidades)",
-        "Número de inversores de 6000W": "(unidades)",
-        "Número de inversores de 6000W": "(unidades)",
-        "Número de inversores de 6000W": "(unidades)",
+        "Número de paneles de 400W": "panel/es",
+        "Número de paneles de 585W": "panel/es",
+        "Número de paneles de 605W": "panel/es",
+        "Número de inversores de 3500W": "inversor/es",
+        "Número de inversores de 6000W": "inversor/es",
+        "Número de inversores de 6000W": "inversor/es",
+        "Número de inversores de 6000W": "inversor/es",
         # Baterias gel
-        "Número de Baterías Gel 100Ah": "(unidades)",
-        "Número de Baterías Gel 150Ah": "(unidades)",
-        "Número de Baterías Gel 200Ah": "(unidades)",
-        "Número de Baterías Gel 250Ah": "(unidades)",
+        "Número de Baterías Gel 100Ah": "bateria/s",
+        "Número de Baterías Gel 150Ah": "bateria/s",
+        "Número de Baterías Gel 200Ah": "bateria/s",
+        "Número de Baterías Gel 250Ah": "bateria/s",
         # Baterias Litio
-        "Número de Baterías litio 60Ah": "(unidades)",
-        "Número de Baterías litio 100Ah": "(unidades)",
-        "Número de Baterías litio 120Ah": "(unidades)",
-        "Número de Baterías litio 150Ah": "(unidades)",
-        "Número de Baterías litio 2000Ah": "(unidades)",
+        "Número de Baterías litio 60Ah": "bateria/s",
+        "Número de Baterías litio 100Ah": "bateria/s",
+        "Número de Baterías litio 120Ah": "bateria/s",
+        "Número de Baterías litio 150Ah": "bateria/s",
+        "Número de Baterías litio 2000Ah": "bateria/s",
         # Estructura
-        "Número de Rieles 4.7m 400W": "(unidades)",
+        "Número de Rieles 4.7m 400W": "riel/es",
         "Número de Midcland 400W": "(unidades)",
         "Número de Endcland 400W": "(unidades)"
     }
@@ -118,12 +118,13 @@ def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor ,co
         if isinstance(value, (int, float)):
             formatted_value = "{:,.2f}".format(value).replace(",", ".")
             unit = unidades.get(key, "")  # Obtiene la unidad si existe
-            value_str = f"{formatted_value} {unit}".strip()
+            value_str = f"${formatted_value} {unit}".strip()  # Agregar el símbolo $
         else:
             value_str = str(value)  # Si no es número, lo deja como está
 
         pdf.cell(col_width, 8, txt=value_str, border=1, align='C')
         pdf.ln()
+
 
     # ✅ **CONDICIONES DEL PROYECTO**
     condiciones_path = "modules/condiciones.txt"
