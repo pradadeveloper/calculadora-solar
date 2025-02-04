@@ -10,12 +10,11 @@ RADIACION_ANUAL_POR_ZONA = {
     "Desierto de la Guajira": 2190
 }
 
-def radiacion_anual_zona (ubicacion):
+def radiacion_anual_zona(ubicacion):
     if ubicacion in RADIACION_ANUAL_POR_ZONA:
         return RADIACION_ANUAL_POR_ZONA[ubicacion] * 12
     else:
         raise ValueError(f"Ubicación {ubicacion} no encontrada en la base de datos.")
-
 
 class CalculoNumeroPaneles:
     def __init__(self, ubicacion, potencia):
@@ -30,22 +29,13 @@ class CalculoNumeroPaneles:
         # Área del panel en m²
         self.area_panel = 1.13  
 
-    def energia_generada_por_panel(self):
-        """
-        Calcula la energía generada anualmente por cada tipo de panel y devuelve los tres valores.
-        """
-        energia_400 = round(self.potencia_panel_400 * self.radiacion_anual,2)
-        energia_585 = round(self.potencia_panel_585 * self.radiacion_anual,2)
-        energia_605 = round(self.potencia_panel_605 * self.radiacion_anual,2)
+    def calcular_paneles(self):
+        energia_400 = round(self.potencia_panel_400 * self.radiacion_anual, 2)
+        energia_585 = round(self.potencia_panel_585 * self.radiacion_anual, 2)
+        energia_605 = round(self.potencia_panel_605 * self.radiacion_anual, 2)
         
-        """
-        Consumo Anual del cliente
-        """
-        consumo_anual = self.potencia * 12  # Se usa self.potencia en vez de recibirlo como argumento
-        
-        """
-        CALCULO DE PÁNELES
-        """
+        consumo_anual = self.potencia * 12  
+
         numeroPaneles_400 = math.ceil(consumo_anual / energia_400)
         numeroPaneles_585 = math.ceil(consumo_anual / energia_585)
         numeroPaneles_605 = math.ceil(consumo_anual / energia_605)
@@ -57,108 +47,83 @@ class CalculoNumeroPaneles:
             "Energía generada por panel de 605W": energia_605,
             "Número de paneles de 400W": numeroPaneles_400,
             "Número de paneles de 585W": numeroPaneles_585,
-            "Número de paneles de 605W": numeroPaneles_605,
+            "Número de paneles de 605W": numeroPaneles_605
         }
 
+def calcular_proyecto(ubicacion, potencia, costo):
+    paneles = CalculoNumeroPaneles(ubicacion, potencia).calcular_paneles()
 
-# ✅ PRUEBA DEL CÓDIGO
-ubicacion_seleccionada = "Región Andina"
-potencia_cliente = 3000  # kWp/mes
-
-calculo_paneles = CalculoNumeroPaneles(ubicacion_seleccionada, potencia_cliente)
-resultados = calculo_paneles.energia_generada_por_panel()
-
-# Imprimir los resultados de la simulación
-for key, value in resultados.items():
-    print(f"{key}: {value}")
-    
-
-
-# COSTO DEL PROYECTO
-def beneficios_del_proyecto(numeroPaneles_400,potencia,costo):
-    consumoAnual = potencia*12
-    ahorroAnual = consumoAnual*costo
+    # Costo del proyecto
+    consumoAnual = potencia * 12
+    ahorroAnual = consumoAnual * costo
     costokWp = 375320
-    costoProyecto = round(costokWp*numeroPaneles_400)
-    disminucionRenta = round(costoProyecto/2)
-    print("Consumo anual: ", consumoAnual)
-    
-    return consumoAnual,ahorroAnual,costokWp,costoProyecto,disminucionRenta
+    costoProyecto = round(costokWp * paneles["Número de paneles de 400W"])
+    disminucionRenta = round(costoProyecto / 2)
 
+    # Área requerida
+    areaRequerida_400 = math.ceil(paneles["Número de paneles de 400W"] * 1.13)
+    areaRequerida_585 = math.ceil(paneles["Número de paneles de 585W"] * 1.13)
+    areaRequerida_605 = math.ceil(paneles["Número de paneles de 605W"] * 1.13)
 
-#AREA REQUERIDA
-def area_requerida(numeroPaneles_400,numeroPaneles_585,numeroPaneles_605):
-    areaRequerida_400 = math.ceil(numeroPaneles_400 * 1.13)
-    areaRequerida_585 = math.ceil(numeroPaneles_585 * 1.13)
-    areaRequerida_605 = math.ceil(numeroPaneles_605 * 1.13)
-    return areaRequerida_400,areaRequerida_585,areaRequerida_605
+    # Inversores
+    numeroInversores_3500 = math.ceil((paneles["Número de paneles de 400W"] * 400) / 3500)
+    numeroInversores_6000 = math.ceil((paneles["Número de paneles de 585W"] * 585) / 6000)
+    numeroInversores_12000 = math.ceil((paneles["Número de paneles de 605W"] * 600) / 12000)
 
-#INVERSORES
-def calculo_inversores(numeroPaneles_400,numeroPaneles_585,numeroPaneles_605):
-    numeroInversores_3500 = math.ceil((numeroPaneles_400* 400)/3500)
-    numeroInversores_6000 = math.ceil((numeroPaneles_585* 585)/6000)
-    numeroInversores_12000 = math.ceil((numeroPaneles_605* 600)/12000)
-    return numeroInversores_3500,numeroInversores_6000,numeroInversores_12000
-
-def calcular_baterias_gel(consumo):
-    """
-    Calcula la cantidad de baterías de gel necesarias según la capacidad.
-    """
+    # Baterías de Gel
     voltaje_baterias_gel = 12
-    capacidad_bateria_gel = math.ceil((consumo / voltaje_baterias_gel) / 0.5)
-    baterias_gel_100Ah = math.ceil(capacidad_bateria_gel / 100)
-    baterias_gel_150Ah = math.ceil(capacidad_bateria_gel / 150),
-    baterias_gel_200Ah = math.ceil(capacidad_bateria_gel / 200),
-    baterias_gel_250Ah = math.ceil(capacidad_bateria_gel / 250)
+    capacidad_bateria_gel = math.ceil((consumoAnual / voltaje_baterias_gel) / 0.5)
 
-    return baterias_gel_100Ah, baterias_gel_150Ah, baterias_gel_200Ah, baterias_gel_250Ah
-
-def calcular_baterias_litio(consumo):
-    """
-    Calcula la cantidad de baterías de litio necesarias según la capacidad.
-    """
+    cantidad_bateriasg_100 = math.ceil(capacidad_bateria_gel/100)
+    cantidad_bateriasg_150 = math.ceil(capacidad_bateria_gel/150)
+    cantidad_bateriasg_200 = math.ceil(capacidad_bateria_gel/200)
+    cantidad_bateriasg_250 = math.ceil(capacidad_bateria_gel/250)
+  
+    # Baterías de Litio
     voltaje_baterias_litio = 24
-    capacidad_bateria_litio = math.ceil(((consumo / voltaje_baterias_litio) * 0.9) * 12)
-    baterias_litio_60Ah = math.ceil(capacidad_bateria_litio / 60),
-    baterias_litio_100Ah = math.ceil(capacidad_bateria_litio / 100),
-    baterias_litio_120Ah = math.ceil(capacidad_bateria_litio / 120),
-    baterias_litio_150Ah = math.ceil(capacidad_bateria_litio / 150),
-    baterias_litio_200Ah = math.ceil(capacidad_bateria_litio / 200)
-    
-    return baterias_litio_60Ah, baterias_litio_100Ah, baterias_litio_120Ah, baterias_litio_150Ah, baterias_litio_200Ah
+    capacidad_bateria_litio = math.ceil(((consumoAnual/voltaje_baterias_litio)*0.9)*12)
+    cantidad_bateriasl_60 = math.ceil(capacidad_bateria_litio/60);
+    cantidad_bateriasl_100 = math.ceil(capacidad_bateria_litio/100);
+    cantidad_bateriasl_120 = math.ceil(capacidad_bateria_litio/120);
+    cantidad_bateriasl_150 = math.ceil(capacidad_bateria_litio/150);
+    cantidad_bateriasl_200 = math.ceil(capacidad_bateria_litio/200);
 
-def calcular_rieles(numero_paneles):
-    """
-    Calcula la cantidad de rieles necesarios según la longitud.
-    """
-    longitud_riel_47 = 4.7
-    longitud_riel_48 = 4.8
-    rieles_47m_paneles_400W = math.ceil(((numero_paneles["400"] * 1.15) / longitud_riel_47) * 2),
-    rieles_47m_paneles_585W = math.ceil(((numero_paneles["585"] * 1.15) / longitud_riel_47) * 2),
-    rieles_47m_paneles_605W = math.ceil(((numero_paneles["605"] * 1.15) / longitud_riel_47) * 2)
-    rieles_48m_paneles_400W = math.ceil(((numero_paneles["400"] * 1.15) / longitud_riel_48) * 2),
-    rieles_48m_paneles_585W = math.ceil(((numero_paneles["585"] * 1.15) / longitud_riel_48) * 2),
-    rieles_48m_paneles_605W = math.ceil(((numero_paneles["605"] * 1.15) / longitud_riel_48) * 2)
-    
-    return rieles_47m_paneles_400W, rieles_47m_paneles_585W, rieles_47m_paneles_605W, rieles_48m_paneles_400W, rieles_48m_paneles_585W, rieles_48m_paneles_605W
+    # Rieles
+    longitud_riel = 4.7
+    rieles_47m_400W = math.ceil((paneles["Número de paneles de 400W"] * 1.15) / longitud_riel) * 2
 
-def calcular_midcland(numero_paneles):
-    """
-    Calcula la cantidad de midcland necesarios.
-    """
-    midcland_400W = math.ceil(numero_paneles["400"] * 2) - 2
-    midcland_585W = math.ceil(numero_paneles["585"] * 2) - 2
-    midcland_605W = math.ceil(numero_paneles["605"] * 2) - 2
+    # Midcland y Endcland
+    midcland_400W = math.ceil(paneles["Número de paneles de 400W"] * 2) - 2
+    endcland_400W = math.ceil(paneles["Número de paneles de 400W"] / 2)
 
-    return midcland_400W, midcland_585W, midcland_605W
+    return {
+        "Costo aproximado del Proyecto": costoProyecto,
+        "Ahorro Anual": ahorroAnual,
+        "Disminución de Renta": disminucionRenta,
+        "Área Requerida para páneles de 400W": areaRequerida_400,
+        "Área Requerida para páneles de 585W": areaRequerida_585,
+        "Área Requerida para páneles de 605W": areaRequerida_605,
+        
+        # Paneles
+        **paneles,
+        # Inversores
+        "Número de Inversores 3.500W": numeroInversores_3500,
+        "Número de Inversores 6.000W": numeroInversores_6000,
+        "Número de Inversores 12.000W": numeroInversores_12000,
+        # Baterias gel
+        "Número de Baterías Gel 100Ah": cantidad_bateriasg_100,
+        "Número de Baterías Gel 150Ah": cantidad_bateriasg_150,
+        "Número de Baterías Gel 200Ah": cantidad_bateriasg_200,
+        "Número de Baterías Gel 250Ah": cantidad_bateriasg_250,
+        # Baterias Litio
+        "Número de Baterías litio 60Ah": cantidad_bateriasl_60,
+        "Número de Baterías litio 100Ah": cantidad_bateriasl_100,
+        "Número de Baterías litio 120Ah": cantidad_bateriasl_120,
+        "Número de Baterías litio 150Ah": cantidad_bateriasl_150,
+        "Número de Baterías litio 2000Ah": cantidad_bateriasl_200,
+        # Estructura
+        "Número de Rieles 4.7m 400W": rieles_47m_400W,
+        "Número de Midcland 400W": midcland_400W,
+        "Número de Endcland 400W": endcland_400W
+    }
 
-
-def calcular_endcland(numero_paneles):
-    """
-    Calcula la cantidad de endcland necesarios.
-    """
-    endcland_400W = math.ceil(numero_paneles["400"] / 2)
-    endcland_585W = math.ceil(numero_paneles["585"] / 2)
-    endcland_605W = math.ceil(numero_paneles["605"] / 2)
-
-    return endcland_400W, endcland_585W, endcland_605W

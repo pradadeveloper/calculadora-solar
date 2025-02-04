@@ -1,8 +1,28 @@
 from flask import Flask, render_template, request, send_file
 from modules.pdf_generator import generar_pdf 
-from modules.calculos_solar import CalculoNumeroPaneles  # Importar la clase
+from modules.calculos_solar import calcular_proyecto
+import json
+import os
+from datetime import datetime
 
 app = Flask(__name__)
+
+
+# LOGICA DEL NUMERO DE COTIZACIÓN
+# Cargar el número de cotización desde un archivo JSON
+def cargar_cotizacion():
+    if os.path.exists("cotizacion.json"):
+        with open("cotizacion.json", "r") as file:
+            return json.load(file).get("cotizacion", 0)
+    return 0
+
+# Guardar el número de cotización en un archivo JSON
+def guardar_cotizacion(numero):
+    with open("cotizacion.json", "w") as file:
+        json.dump({"cotizacion": numero}, file)
+
+# Inicializar el contador de cotizaciones
+cotizacion_contador = cargar_cotizacion()
 
 # ---------------------RUTAS------------------------------
 
@@ -16,37 +36,33 @@ def index():
 def calculadora_solar():
     return render_template('calculadora_solar.html')
 
-# Ruta para generar PDF del "Cotizador de proyectos solares"
 @app.route('/generar_pdf', methods=['POST'])
 def generar_pdf_route():
-    if request.method == 'POST':
-        # Recibir datos del formulario
-        cliente = request.form['cliente']
-        proyecto = request.form['proyecto']
-        correo = request.form['correo']
-        correo_asesor = request.form['correo_asesor']
-        celular = request.form['celular']
-        ubicacion = request.form['ubicacion']
-        potencia = float(request.form['potencia'])
-        costo = float(request.form['costo'])
-        area = float(request.form['area'])
-        
-         # ✅ Calcular la energía generada y el número de paneles
-        calculo = CalculoNumeroPaneles(ubicacion, potencia)
-        energia_generada = calculo.energia_generada_por_panel()  
+    global cotizacion_contador
+    cotizacion_contador += 1  # Incrementamos la cotización
+    guardar_cotizacion(cotizacion_contador)  # Guardamos en el archivo
 
-        # Extraer los valores importantes
-        consumo_anual = energia_generada["Consumo Anual (kWh)"]
-        paneles_400 = energia_generada["Número de paneles de 400W"]
-        paneles_585 = energia_generada["Número de paneles de 585W"]
-        paneles_605 = energia_generada["Número de paneles de 605W"]
+    # Recibir datos del formulario
+    cliente = request.form['cliente']
+    proyecto = request.form['proyecto']
+    celular = request.form['celular']
+    correo_asesor = request.form['correo_asesor']
+    correo = request.form['correo']
+    ubicacion = request.form['ubicacion']
+    potencia = float(request.form['potencia'])
+    costo = float(request.form['costo'])
+    area = float(request.form['area'])
+    
+    # Obtener la fecha actual en formato día/mes/año
+    fecha_cotizacion = datetime.now().strftime("%d/%m/%Y")
 
-        # Generar PDF utilizando el módulo y pasar los valores como argumentos
-        pdf_path = generar_pdf(cliente, proyecto, celular, correo_asesor, correo, 
-                       ubicacion, potencia, costo, area, 
-                       consumo_anual, paneles_400, paneles_585, paneles_605)
+    # **✅ CALCULAR TODOS LOS DATOS DEL PROYECTO**
+    datos_proyecto = calcular_proyecto(ubicacion, potencia, costo)
 
-        return send_file(pdf_path, as_attachment=True)
+    # **✅ GENERAR EL PDF**
+    pdf_path = generar_pdf(cotizacion_contador,fecha_cotizacion, cliente, proyecto, celular,correo, correo_asesor, ubicacion, potencia, costo, area, datos_proyecto)
+
+    return send_file(pdf_path, as_attachment=True)
 
 # Ruta para "Cotizador de equipos solares"
 @app.route('/calculadora_equipos')
