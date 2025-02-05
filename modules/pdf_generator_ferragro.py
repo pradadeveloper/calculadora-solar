@@ -1,4 +1,4 @@
-from fpdf import FPDF # type: ignore
+from fpdf import FPDF
 import os
 
 # Carpeta donde se guardarán los PDFs generados
@@ -16,7 +16,7 @@ def format_value(value, unit=""):
 
 def add_red_title(pdf, title):
     """ Agrega un título con fondo rojo y letra blanca en toda la fila. """
-    pdf.set_fill_color(255, 0, 0)  # Rojo
+    pdf.set_fill_color(34, 139, 34) # Verde
     pdf.set_text_color(255, 255, 255)  # Blanco
     pdf.set_font('Arial', 'B', 14)
     pdf.cell(0, 10, title, ln=True, align='C', fill=True)
@@ -66,17 +66,19 @@ def agregar_forma_pago_y_mantenimiento(pdf):
     pdf.cell(0, 10, "Condición: Indexado IPC", ln=True, align='C', border=1)
     pdf.ln(10)  
 
-def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor, correo, ubicacion, potencia, costo, area, resultados_proyecto):
+def generar_pdf_ferragro(cotizacion, fecha, cliente, proyecto, celular, correo_asesor, correo, ubicacion, potencia, costo, area, resultados_proyecto):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
 
     pdf.set_font('Arial', size=12)
 
-    # ✅ LOGO CENTRADO
-    logo_path = "./static/css/imagenes/SOLARTECH.jpeg"
-    pdf.image(logo_path, x=(pdf.w - 100) / 2, y=10, w=100)
-    pdf.ln(30)
+    # ✅ LOGO CENTRADO SIN SOLAPAMIENTO
+    logo_path = "./static/css/imagenes/logos.jpeg"
+
+    # Ajustamos la posición en Y para que haya más espacio
+    pdf.image(logo_path, x=(pdf.w - 120) / 2, y=5, w=120)  # Más grande y centrado
+    pdf.ln(50)  # Agrega espacio después del logo para evitar solapamiento
 
     # ✅ TITULO Y FECHA
     pdf.set_font('Arial', 'B', 16)
@@ -84,22 +86,7 @@ def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor, co
     pdf.cell(0, 10, txt="Cotización de Proyecto de Energía Solar", ln=True, align='C')
     pdf.set_font('Arial', 'I', 12)
     pdf.cell(0, 10, txt=f"Fecha: {fecha}", ln=True, align='C')
-    pdf.ln(10)
-<<<<<<< HEAD
-    
-    #IMAGEN
-    imagen_path = "./static/css/imagenes/NATURAL_HARVEST.jpeg"
-    image_width = 200
-    image_height = 80
-    pdf.image(imagen_path, x=(pdf.w - image_width) / 2, w=image_width, h=image_height)
-    pdf.ln(10)
-    
-    # ✅ **TABLA DE INFORMACIÓN DEL CLIENTE**
-    pdf.set_font('Arial', 'B', 14)
-    pdf.cell(0, 10, txt="Datos proporcionados por el cliente:", ln=True, align='C')
     pdf.ln(5)
-=======
->>>>>>> 72d0e5a (Calculadoras en PDF completas Ferragro y Solartech)
 
     # ✅ IMAGEN CENTRAL
     imagen_path = "./static/css/imagenes/energia.jpg"
@@ -140,63 +127,6 @@ def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor, co
     for section, data in resultados_proyecto.items():
         add_red_title(pdf, section)
 
-<<<<<<< HEAD
-    pdf.set_font('Arial', 'B', 12)
-    col_width = (pdf.w - 20) / 2
-    pdf.cell(col_width, 8, txt="Concepto", border=1, align='C')
-    pdf.cell(col_width, 8, txt="Valor", border=1, align='C')
-    pdf.ln()
-
-    pdf.set_font('Arial', size=12)
-
-    # Unidades de medida según concepto
-    unidades = {
-        "Consumo Anual (kWh)": "kWh",
-        "Energía generada por panel de 400W": "kWh",
-        "Energía generada por panel de 585W": "kWh",
-        "Energía generada por panel de 605W": "kWh",
-        "Número de paneles de 400W": "panel/es",
-        "Número de paneles de 585W": "panel/es",
-        "Número de paneles de 605W": "panel/es",
-        "Número de inversores de 3500W": "inversor/es",
-        "Número de inversores de 6000W": "inversor/es",
-        "Número de inversores de 6000W": "inversor/es",
-        "Número de inversores de 6000W": "inversor/es",
-        # Baterias gel
-        "Número de Baterías Gel 100Ah": "bateria/s",
-        "Número de Baterías Gel 150Ah": "bateria/s",
-        "Número de Baterías Gel 200Ah": "bateria/s",
-        "Número de Baterías Gel 250Ah": "bateria/s",
-        # Baterias Litio
-        "Número de Baterías litio 60Ah": "bateria/s",
-        "Número de Baterías litio 100Ah": "bateria/s",
-        "Número de Baterías litio 120Ah": "bateria/s",
-        "Número de Baterías litio 150Ah": "bateria/s",
-        "Número de Baterías litio 2000Ah": "bateria/s",
-        # Estructura
-        "Número de Rieles 4.7m 400W": "riel/es",
-        "Número de Midcland 400W": "(unidades)",
-        "Número de Endcland 400W": "(unidades)"
-    }
-    
-
-    for key, value in datos_proyecto.items():
-        pdf.cell(col_width, 8, txt=key, border=1)
-        
-        # Verifica si es un número y lo formatea con separador de miles
-        if isinstance(value, (int, float)):
-            formatted_value = "{:,.2f}".format(value).replace(",", ".")
-            unit = unidades.get(key, "")  # Obtiene la unidad si existe
-            value_str = f"${formatted_value} {unit}".strip()  # Agregar el símbolo $
-        else:
-            value_str = str(value)  # Si no es número, lo deja como está
-
-        pdf.cell(col_width, 8, txt=value_str, border=1, align='C')
-        pdf.ln()
-
-
-    # ✅ **CONDICIONES DEL PROYECTO**
-=======
         pdf.set_font('Arial', 'B', 12)
         pdf.cell(col_width, 8, txt="Concepto", border=1, align='C')
         pdf.cell(col_width, 8, txt="Valor", border=1, align='C')
@@ -239,7 +169,6 @@ def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor, co
 
     # ✅ CONDICIONES DEL PROYECTO
     add_red_title(pdf, "Condiciones del Proyecto")
->>>>>>> 72d0e5a (Calculadoras en PDF completas Ferragro y Solartech)
     condiciones_path = "modules/condiciones.txt"
     if os.path.exists(condiciones_path):
         with open(condiciones_path, "r", encoding="utf-8") as file:
@@ -251,7 +180,7 @@ def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor, co
     
     # ✅ INFORMACIÓN DE FACTURACIÓN Y MENSAJE LEGAL
     pdf.set_font('Arial', 'I', 12)
-    pdf.set_text_color(255, 0, 0)  # Rojo
+    pdf.set_text_color(34, 139, 34)  # Rojo
     pdf.multi_cell(0, 10, "Cualquier inquietud adicional que tengan con gusto será atendida. Con la solicitud de esta cotización, autorizas el uso de tus datos personales. Para más información, ingresa a www.ferragro.com", align='L')
 
     pdf.ln(5)

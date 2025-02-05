@@ -36,15 +36,11 @@ class CalculoNumeroPaneles:
         
         consumo_anual = self.potencia * 12  
 
-        numeroPaneles_400 = math.ceil(consumo_anual / energia_400)
-        numeroPaneles_585 = math.ceil(consumo_anual / energia_585)
-        numeroPaneles_605 = math.ceil(consumo_anual / energia_605)
+        numeroPaneles_400 = round(math.ceil(consumo_anual / energia_400))
+        numeroPaneles_585 = round(math.ceil(consumo_anual / energia_585))
+        numeroPaneles_605 = round(math.ceil(consumo_anual / energia_605))
 
         return {
-            "Consumo Anual (kWh)": consumo_anual,
-            "Energía generada por panel de 400W": energia_400,
-            "Energía generada por panel de 585W": energia_585,
-            "Energía generada por panel de 605W": energia_605,
             "Número de paneles de 400W": numeroPaneles_400,
             "Número de paneles de 585W": numeroPaneles_585,
             "Número de paneles de 605W": numeroPaneles_605
@@ -55,75 +51,83 @@ def calcular_proyecto(ubicacion, potencia, costo):
 
     # Costo del proyecto
     consumoAnual = potencia * 12
-    ahorroAnual = consumoAnual * costo
+    ahorroAnual = f"${int(consumoAnual * costo):,}" if (consumoAnual * costo) % 1 == 0 else f"${consumoAnual * costo:,.2f}".replace(",", ".")
+
     costokWp = 375320
-    costoProyecto = round(costokWp * paneles["Número de paneles de 400W"])
-    disminucionRenta = round(costoProyecto / 2)
+    costoProyecto = f"${int(costokWp * paneles['Número de paneles de 400W']):,}" if costokWp * paneles['Número de paneles de 400W'] % 1 == 0 else f"${costokWp * paneles['Número de paneles de 400W']:,.2f}".replace(",", ".")
+    disminucionRenta = f"${int(costokWp * paneles['Número de paneles de 400W'] / 2):,}" if (costokWp * paneles['Número de paneles de 400W'] / 2) % 1 == 0 else f"${costokWp * paneles['Número de paneles de 400W'] / 2:,.2f}".replace(",", ".")
 
     # Área requerida
-    areaRequerida_400 = math.ceil(paneles["Número de paneles de 400W"] * 1.13)
-    areaRequerida_585 = math.ceil(paneles["Número de paneles de 585W"] * 1.13)
-    areaRequerida_605 = math.ceil(paneles["Número de paneles de 605W"] * 1.13)
+    area_minima_Requerida = f"{round(math.ceil(paneles["Número de paneles de 400W"] * 1.13))} m²"
 
     # Inversores
-    numeroInversores_3500 = math.ceil((paneles["Número de paneles de 400W"] * 400) / 3500)
-    numeroInversores_6000 = math.ceil((paneles["Número de paneles de 585W"] * 585) / 6000)
-    numeroInversores_12000 = math.ceil((paneles["Número de paneles de 605W"] * 600) / 12000)
+    numeroInversores_3500 = round(math.ceil((paneles["Número de paneles de 400W"] * 400) / 3500))
+    numeroInversores_6000 = round(math.ceil((paneles["Número de paneles de 585W"] * 585) / 6000))
+    numeroInversores_12000 = round(math.ceil((paneles["Número de paneles de 605W"] * 600) / 12000))
 
     # Baterías de Gel
     voltaje_baterias_gel = 12
-    capacidad_bateria_gel = math.ceil((consumoAnual / voltaje_baterias_gel) / 0.5)
+    capacidad_bateria_gel = math.ceil(((consumoAnual/365) / voltaje_baterias_gel) / 0.5)
 
-    cantidad_bateriasg_100 = math.ceil(capacidad_bateria_gel/100)
-    cantidad_bateriasg_150 = math.ceil(capacidad_bateria_gel/150)
-    cantidad_bateriasg_200 = math.ceil(capacidad_bateria_gel/200)
-    cantidad_bateriasg_250 = math.ceil(capacidad_bateria_gel/250)
+    cantidad_bateriasg_100 = round(math.ceil(capacidad_bateria_gel/100))
+    cantidad_bateriasg_150 = round(math.ceil(capacidad_bateria_gel/150))
+    cantidad_bateriasg_200 = round(math.ceil(capacidad_bateria_gel/200))
+    cantidad_bateriasg_250 = round(math.ceil(capacidad_bateria_gel/250))
   
     # Baterías de Litio
     voltaje_baterias_litio = 24
-    capacidad_bateria_litio = math.ceil(((consumoAnual/voltaje_baterias_litio)*0.9)*12)
-    cantidad_bateriasl_60 = math.ceil(capacidad_bateria_litio/60);
-    cantidad_bateriasl_100 = math.ceil(capacidad_bateria_litio/100);
-    cantidad_bateriasl_120 = math.ceil(capacidad_bateria_litio/120);
-    cantidad_bateriasl_150 = math.ceil(capacidad_bateria_litio/150);
-    cantidad_bateriasl_200 = math.ceil(capacidad_bateria_litio/200);
+    capacidad_bateria_litio = round(math.ceil((((consumoAnual/365)/voltaje_baterias_litio)*0.9)*12))
+    cantidad_bateriasl_60 = round(math.ceil(capacidad_bateria_litio/60))
+    cantidad_bateriasl_100 = round(math.ceil(capacidad_bateria_litio/100))
+    cantidad_bateriasl_120 = round(math.ceil(capacidad_bateria_litio/120))
+    cantidad_bateriasl_150 = round(math.ceil(capacidad_bateria_litio/150))
+    cantidad_bateriasl_200 = round(math.ceil(capacidad_bateria_litio/200))
 
     # Rieles
     longitud_riel = 4.7
-    rieles_47m_400W = math.ceil((paneles["Número de paneles de 400W"] * 1.15) / longitud_riel) * 2
+    rieles_47m_400W = round(math.ceil((paneles["Número de paneles de 400W"] * 1.15) / longitud_riel) * 2)
 
     # Midcland y Endcland
-    midcland_400W = math.ceil(paneles["Número de paneles de 400W"] * 2) - 2
-    endcland_400W = math.ceil(paneles["Número de paneles de 400W"] / 2)
+    midcland_400W = round(math.ceil(paneles["Número de paneles de 400W"] * 2) - 2)
+    endcland_400W = round(math.ceil(paneles["Número de paneles de 400W"] / 2))
 
     return {
-        "Costo aproximado del Proyecto": costoProyecto,
-        "Ahorro Anual": ahorroAnual,
-        "Disminución de Renta": disminucionRenta,
-        "Área Requerida para páneles de 400W": areaRequerida_400,
-        "Área Requerida para páneles de 585W": areaRequerida_585,
-        "Área Requerida para páneles de 605W": areaRequerida_605,
-        
-        # Paneles
-        **paneles,
-        # Inversores
-        "Número de Inversores 3.500W": numeroInversores_3500,
-        "Número de Inversores 6.000W": numeroInversores_6000,
-        "Número de Inversores 12.000W": numeroInversores_12000,
-        # Baterias gel
-        "Número de Baterías Gel 100Ah": cantidad_bateriasg_100,
-        "Número de Baterías Gel 150Ah": cantidad_bateriasg_150,
-        "Número de Baterías Gel 200Ah": cantidad_bateriasg_200,
-        "Número de Baterías Gel 250Ah": cantidad_bateriasg_250,
-        # Baterias Litio
-        "Número de Baterías litio 60Ah": cantidad_bateriasl_60,
-        "Número de Baterías litio 100Ah": cantidad_bateriasl_100,
-        "Número de Baterías litio 120Ah": cantidad_bateriasl_120,
-        "Número de Baterías litio 150Ah": cantidad_bateriasl_150,
-        "Número de Baterías litio 2000Ah": cantidad_bateriasl_200,
-        # Estructura
-        "Número de Rieles 4.7m 400W": rieles_47m_400W,
-        "Número de Midcland 400W": midcland_400W,
-        "Número de Endcland 400W": endcland_400W
+        "Resultados Generales":{
+            "Costo Proyecto": costoProyecto,
+            "Ahorro Anual": ahorroAnual,
+            "Disminución de Renta": disminucionRenta,
+            "Área mínima requerida para páneles": area_minima_Requerida,
+        },
+        "Equipos Necesarios":{
+            "Paneles":{
+                **paneles   
+            },
+            
+            "Inversores":{
+                "Número de Inversores 3.500W": numeroInversores_3500,
+                "Número de Inversores 6.000W": numeroInversores_6000,
+                "Número de Inversores 12.000W": numeroInversores_12000,
+            },
+            
+            "Baterias gel":{
+                "Número de Baterías Gel 100Ah": cantidad_bateriasg_100,
+                "Número de Baterías Gel 150Ah": cantidad_bateriasg_150,
+                "Número de Baterías Gel 200Ah": cantidad_bateriasg_200,
+                "Número de Baterías Gel 250Ah": cantidad_bateriasg_250,
+            },
+            "Baterias Litio":{
+                "Número de Baterías litio 60Ah": cantidad_bateriasl_60,
+                "Número de Baterías litio 100Ah": cantidad_bateriasl_100,
+                "Número de Baterías litio 120Ah": cantidad_bateriasl_120,
+                "Número de Baterías litio 150Ah": cantidad_bateriasl_150,
+                "Número de Baterías litio 2000Ah": cantidad_bateriasl_200,
+            },
+                
+            "Estructura":{
+                "Número de Rieles 4.7m 400W": rieles_47m_400W,
+                "Número de Midcland 400W": midcland_400W,
+                "Número de Endcland 400W": endcland_400W    
+            }
+        }
     }
 
