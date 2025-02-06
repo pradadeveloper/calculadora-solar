@@ -54,11 +54,11 @@ def calcular_proyecto(ubicacion, potencia, costo):
     ahorroAnual = f"${int(consumoAnual * costo):,}" if (consumoAnual * costo) % 1 == 0 else f"${consumoAnual * costo:,.2f}".replace(",", ".")
 
     costokWp = 375320
-    costoProyecto = f"${int(costokWp * paneles['Número de paneles de 400W']):,}" if costokWp * paneles['Número de paneles de 400W'] % 1 == 0 else f"${costokWp * paneles['Número de paneles de 400W']:,.2f}".replace(",", ".")
-    disminucionRenta = f"${int(costokWp * paneles['Número de paneles de 400W'] / 2):,}" if (costokWp * paneles['Número de paneles de 400W'] / 2) % 1 == 0 else f"${costokWp * paneles['Número de paneles de 400W'] / 2:,.2f}".replace(",", ".")
+    costoProyecto = f'${int(costokWp * paneles['Número de paneles de 400W']):,}' if costokWp * paneles['Número de paneles de 400W'] % 1 == 0 else f"${costokWp * paneles['Número de paneles de 400W']:,.2f}".replace(",", ".")
+    disminucionRenta = f'${int(costokWp * paneles['Número de paneles de 400W'] / 2):,}' if (costokWp * paneles['Número de paneles de 400W'] / 2) % 1 == 0 else f"${costokWp * paneles['Número de paneles de 400W'] / 2:,.2f}".replace(",", ".")
 
     # Área requerida
-    area_minima_Requerida = f"{round(math.ceil(paneles["Número de paneles de 400W"] * 1.13))} m²"
+    area_minima_Requerida = f'{round(math.ceil(paneles["Número de paneles de 400W"] * 1.13))} m²'
 
     # Inversores
     numeroInversores_3500 = round(math.ceil((paneles["Número de paneles de 400W"] * 400) / 3500))
