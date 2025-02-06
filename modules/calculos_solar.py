@@ -59,7 +59,7 @@ def calcular_proyecto(ubicacion, potencia, costo):
     disminucionRenta = f'${int(costokWp * paneles["Número de paneles de 400W"] / 2):,}' if (costokWp * paneles["Número de paneles de 400W"] / 2) % 1 == 0 else f'${costokWp * paneles["Número de paneles de 400W"] / 2:,.2f}'.replace(",", ".")
 
     # Área requerida
-    area_minima_Requerida = f'{round(math.ceil(paneles['Número de paneles de 400W'] * 1.13))} m²'
+    area_minima_Requerida = f'{round(math.ceil(paneles["Número de paneles de 400W"] * 1.13))} m²'
 
     # Inversores
     numeroInversores_3500 = round(math.ceil((paneles['Número de paneles de 400W'] * 400) / 3500))
