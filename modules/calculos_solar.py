@@ -58,12 +58,12 @@ def calcular_proyecto(ubicacion, potencia, costo):
     disminucionRenta = f'${int(costokWp * paneles['Número de paneles de 400W'] / 2):,}' if (costokWp * paneles['Número de paneles de 400W'] / 2) % 1 == 0 else f'${costokWp * paneles['Número de paneles de 400W'] / 2:,.2f}'.replace(",", ".")
 
     # Área requerida
-    area_minima_Requerida = f'{round(math.ceil(paneles["Número de paneles de 400W"] * 1.13))} m²'
+    area_minima_Requerida = f'{round(math.ceil(paneles['Número de paneles de 400W'] * 1.13))} m²'
 
     # Inversores
-    numeroInversores_3500 = round(math.ceil((paneles["Número de paneles de 400W"] * 400) / 3500))
-    numeroInversores_6000 = round(math.ceil((paneles["Número de paneles de 585W"] * 585) / 6000))
-    numeroInversores_12000 = round(math.ceil((paneles["Número de paneles de 605W"] * 600) / 12000))
+    numeroInversores_3500 = round(math.ceil((paneles['Número de paneles de 400W'] * 400) / 3500))
+    numeroInversores_6000 = round(math.ceil((paneles['Número de paneles de 585W'] * 585) / 6000))
+    numeroInversores_12000 = round(math.ceil((paneles['Número de paneles de 605W'] * 600) / 12000))
 
     # Baterías de Gel
     voltaje_baterias_gel = 12
@@ -85,11 +85,11 @@ def calcular_proyecto(ubicacion, potencia, costo):
 
     # Rieles
     longitud_riel = 4.7
-    rieles_47m_400W = round(math.ceil((paneles["Número de paneles de 400W"] * 1.15) / longitud_riel) * 2)
+    rieles_47m_400W = round(math.ceil((paneles['Número de paneles de 400W'] * 1.15) / longitud_riel) * 2)
 
     # Midcland y Endcland
-    midcland_400W = round(math.ceil(paneles["Número de paneles de 400W"] * 2) - 2)
-    endcland_400W = round(math.ceil(paneles["Número de paneles de 400W"] / 2))
+    midcland_400W = round(math.ceil(paneles['Número de paneles de 400W'] * 2) - 2)
+    endcland_400W = round(math.ceil(paneles['Número de paneles de 400W'] / 2))
 
     return {
         "Resultados Generales":{
