@@ -85,18 +85,6 @@ def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor, co
     pdf.set_font('Arial', 'I', 12)
     pdf.cell(0, 10, txt=f"Fecha: {fecha}", ln=True, align='C')
     pdf.ln(10)
-    
-    #IMAGEN
-    imagen_path = "./static/css/imagenes/NATURAL_HARVEST.jpeg"
-    image_width = 200
-    image_height = 80
-    pdf.image(imagen_path, x=(pdf.w - image_width) / 2, w=image_width, h=image_height)
-    pdf.ln(10)
-    
-    # ✅ **TABLA DE INFORMACIÓN DEL CLIENTE**
-    pdf.set_font('Arial', 'B', 14)
-    pdf.cell(0, 10, txt="Datos proporcionados por el cliente:", ln=True, align='C')
-    pdf.ln(5)
 
     # ✅ IMAGEN CENTRAL
     imagen_path = "./static/css/imagenes/energia.jpg"
@@ -137,61 +125,48 @@ def generar_pdf(cotizacion, fecha, cliente, proyecto, celular, correo_asesor, co
     for section, data in resultados_proyecto.items():
         add_red_title(pdf, section)
 
-    pdf.set_font('Arial', 'B', 12)
-    col_width = (pdf.w - 20) / 2
-    pdf.cell(col_width, 8, txt="Concepto", border=1, align='C')
-    pdf.cell(col_width, 8, txt="Valor", border=1, align='C')
-    pdf.ln()
-
-    pdf.set_font('Arial', size=12)
-
-    # Unidades de medida según concepto
-    unidades = {
-        "Consumo Anual (kWh)": "kWh",
-        "Energía generada por panel de 400W": "kWh",
-        "Energía generada por panel de 585W": "kWh",
-        "Energía generada por panel de 605W": "kWh",
-        "Número de paneles de 400W": "panel/es",
-        "Número de paneles de 585W": "panel/es",
-        "Número de paneles de 605W": "panel/es",
-        "Número de inversores de 3500W": "inversor/es",
-        "Número de inversores de 6000W": "inversor/es",
-        "Número de inversores de 6000W": "inversor/es",
-        "Número de inversores de 6000W": "inversor/es",
-        # Baterias gel
-        "Número de Baterías Gel 100Ah": "bateria/s",
-        "Número de Baterías Gel 150Ah": "bateria/s",
-        "Número de Baterías Gel 200Ah": "bateria/s",
-        "Número de Baterías Gel 250Ah": "bateria/s",
-        # Baterias Litio
-        "Número de Baterías litio 60Ah": "bateria/s",
-        "Número de Baterías litio 100Ah": "bateria/s",
-        "Número de Baterías litio 120Ah": "bateria/s",
-        "Número de Baterías litio 150Ah": "bateria/s",
-        "Número de Baterías litio 2000Ah": "bateria/s",
-        # Estructura
-        "Número de Rieles 4.7m 400W": "riel/es",
-        "Número de Midcland 400W": "(unidades)",
-        "Número de Endcland 400W": "(unidades)"
-    }
-    
-
-    for key, value in resultados_proyecto.items():
-        pdf.cell(col_width, 8, txt=key, border=1)
-        
-        # Verifica si es un número y lo formatea con separador de miles
-        if isinstance(value, (int, float)):
-            formatted_value = "{:,.2f}".format(value).replace(",", ".")
-            unit = unidades.get(key, "")  # Obtiene la unidad si existe
-            value_str = f"${formatted_value} {unit}".strip()  # Agregar el símbolo $
-        else:
-            value_str = str(value)  # Si no es número, lo deja como está
-
-        pdf.cell(col_width, 8, txt=value_str, border=1, align='C')
+        pdf.set_font('Arial', 'B', 12)
+        pdf.cell(col_width, 8, txt="Concepto", border=1, align='C')
+        pdf.cell(col_width, 8, txt="Valor", border=1, align='C')
         pdf.ln()
 
+        pdf.set_font('Arial', size=12)
 
-    # ✅ **CONDICIONES DEL PROYECTO**
+        for key, value in data.items():
+            if isinstance(value, dict):  
+                pdf.set_font('Arial', 'B', 12)
+                pdf.cell(0, 8, txt=key, ln=True, align='L', border=1)
+                pdf.ln(2)
+
+                pdf.set_font('Arial', size=12)
+                for subkey, subvalue in value.items():
+                    pdf.cell(col_width, 8, txt=subkey, border=1)
+                    pdf.cell(col_width, 8, txt=format_value(subvalue), border=1, align='C')
+                    pdf.ln()
+
+                pdf.ln(5)  
+
+            else:
+                pdf.cell(col_width, 8, txt=key, border=1)
+                pdf.cell(col_width, 8, txt=format_value(value), border=1, align='C')
+                pdf.ln()
+
+        pdf.ln(10)
+
+    # ✅ FORMA DE PAGO Y MANTENIMIENTO
+    agregar_forma_pago_y_mantenimiento(pdf)
+
+    # ✅ MARCAS ALIADAS
+    add_red_title(pdf, "Marcas aliadas")
+    marcas_path = "./static/css/imagenes/MARCAS_ALIADAS.png"
+    pdf.image(marcas_path, x=(pdf.w - 150) / 2, w=150)
+    pdf.ln(10)
+    
+    # SALTO DE PAGINA
+    pdf.add_page()
+
+    # ✅ CONDICIONES DEL PROYECTO
+    add_red_title(pdf, "Condiciones del Proyecto")
     condiciones_path = "modules/condiciones.txt"
     if os.path.exists(condiciones_path):
         with open(condiciones_path, "r", encoding="utf-8") as file:
